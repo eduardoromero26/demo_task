@@ -21,7 +21,7 @@ class JobsToolbarSection extends StatelessWidget {
         child: ColoredBox(
           color: Theme.of(context).scaffoldBackgroundColor,
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -32,7 +32,7 @@ class JobsToolbarSection extends StatelessWidget {
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 12),
                 Row(
                   children: [
                     OutlinedButton.icon(
@@ -43,7 +43,7 @@ class JobsToolbarSection extends StatelessWidget {
                         side: BorderSide.none,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 18,
-                          vertical: 16,
+                          vertical: 14,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
@@ -61,7 +61,7 @@ class JobsToolbarSection extends StatelessWidget {
                           foregroundColor: AppTheme.textPrimary,
                           elevation: 6,
                           shadowColor: AppTheme.primary.withValues(alpha: 0.2),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -84,7 +84,7 @@ class JobsToolbarSection extends StatelessWidget {
 class _JobsToolbarHeaderDelegate extends SliverPersistentHeaderDelegate {
   const _JobsToolbarHeaderDelegate({required this.child});
 
-  static const _headerHeight = 154.0;
+  static const _headerHeight = 126.0;
 
   final Widget child;
 

@@ -1,6 +1,6 @@
 import 'package:demo_task/core/theme/app_theme.dart';
 import 'package:demo_task/domain/model/work_order_model.dart';
-import 'package:demo_task/presentation/widgets/home/home_formatters.dart';
+import 'package:demo_task/presentation/screens/home/widgets/home_formatters.dart';
 import 'package:flutter/material.dart';
 
 class ActiveJobsSection extends StatelessWidget {

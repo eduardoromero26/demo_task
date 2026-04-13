@@ -42,16 +42,8 @@ class TechnicalFieldServiceAppBar extends StatelessWidget
       actions: [
         IconButton(
           onPressed: () {},
-          icon: const Icon(Icons.search_rounded),
+          icon: const Icon(Icons.notifications_none_rounded),
           color: AppTheme.secondary,
-        ),
-        Padding(
-          padding: const EdgeInsets.only(right: 12),
-          child: IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.notifications_none_rounded),
-            color: AppTheme.secondary,
-          ),
         ),
       ],
     );

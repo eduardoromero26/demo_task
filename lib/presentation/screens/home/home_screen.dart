@@ -3,11 +3,11 @@ import 'package:demo_task/domain/model/work_order_model.dart';
 import 'package:demo_task/presentation/bloc/work_orders_bloc.dart';
 import 'package:demo_task/presentation/bloc/work_orders_event.dart';
 import 'package:demo_task/presentation/bloc/work_orders_state.dart';
-import 'package:demo_task/presentation/widgets/home/active_jobs_section.dart';
-import 'package:demo_task/presentation/widgets/home/dashboard_bottom_navigation.dart';
-import 'package:demo_task/presentation/widgets/home/home_formatters.dart';
-import 'package:demo_task/presentation/widgets/home/jobs_toolbar_section.dart';
-import 'package:demo_task/presentation/widgets/home/technical_field_service_app_bar.dart';
+import 'package:demo_task/presentation/screens/home/widgets/active_jobs_section.dart';
+import 'package:demo_task/presentation/screens/home/widgets/dashboard_bottom_navigation.dart';
+import 'package:demo_task/presentation/screens/home/widgets/home_formatters.dart';
+import 'package:demo_task/presentation/screens/home/widgets/jobs_toolbar_section.dart';
+import 'package:demo_task/presentation/screens/home/widgets/technical_field_service_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
