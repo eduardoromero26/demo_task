@@ -1,20 +1,14 @@
 import 'package:equatable/equatable.dart';
 
-enum WorkOrderStatus { pending, scheduled, inProgress, blocked, completed }
-
-enum WorkOrderPriority { low, medium, high }
+enum WorkOrderStatus { pending, inProgress, completed }
 
 extension WorkOrderStatusX on WorkOrderStatus {
   List<WorkOrderStatus> get allowedTransitions {
     switch (this) {
       case WorkOrderStatus.pending:
-        return const [WorkOrderStatus.scheduled, WorkOrderStatus.blocked];
-      case WorkOrderStatus.scheduled:
-        return const [WorkOrderStatus.inProgress, WorkOrderStatus.blocked];
+        return const [WorkOrderStatus.inProgress];
       case WorkOrderStatus.inProgress:
-        return const [WorkOrderStatus.completed, WorkOrderStatus.blocked];
-      case WorkOrderStatus.blocked:
-        return const [WorkOrderStatus.scheduled, WorkOrderStatus.inProgress];
+        return const [WorkOrderStatus.completed];
       case WorkOrderStatus.completed:
         return const [];
     }
@@ -30,7 +24,6 @@ class WorkOrderModel extends Equatable {
     required this.id,
     required this.title,
     required this.status,
-    required this.priority,
     required this.location,
     required this.scheduledDate,
     this.description,
@@ -44,7 +37,6 @@ class WorkOrderModel extends Equatable {
   final DateTime scheduledDate;
   final String? assignedTo;
   final WorkOrderStatus status;
-  final WorkOrderPriority priority;
 
   WorkOrderModel copyWith({
     String? id,
@@ -54,7 +46,6 @@ class WorkOrderModel extends Equatable {
     DateTime? scheduledDate,
     String? assignedTo,
     WorkOrderStatus? status,
-    WorkOrderPriority? priority,
   }) {
     return WorkOrderModel(
       id: id ?? this.id,
@@ -64,7 +55,6 @@ class WorkOrderModel extends Equatable {
       scheduledDate: scheduledDate ?? this.scheduledDate,
       assignedTo: assignedTo ?? this.assignedTo,
       status: status ?? this.status,
-      priority: priority ?? this.priority,
     );
   }
 
@@ -77,6 +67,5 @@ class WorkOrderModel extends Equatable {
     scheduledDate,
     assignedTo,
     status,
-    priority,
   ];
 }

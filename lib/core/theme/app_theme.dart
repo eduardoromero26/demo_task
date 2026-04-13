@@ -17,7 +17,7 @@ class AppTheme {
       secondary: secondary,
       tertiary: tertiary,
       surface: surface,
-      onPrimary: textPrimary,
+      onPrimary: Colors.white,
       onSecondary: Colors.white,
       onSurface: textPrimary,
     );
@@ -48,7 +48,12 @@ class AppTheme {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: primary,
-          foregroundColor: textPrimary,
+          foregroundColor: Colors.white,
+          textStyle: const TextStyle(
+            fontFamily: fontFamily,
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),

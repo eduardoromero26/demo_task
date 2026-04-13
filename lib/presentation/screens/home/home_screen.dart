@@ -8,6 +8,7 @@ import 'package:demo_task/presentation/screens/home/widgets/dashboard_bottom_nav
 import 'package:demo_task/presentation/screens/home/widgets/home_formatters.dart';
 import 'package:demo_task/presentation/screens/home/widgets/jobs_toolbar_section.dart';
 import 'package:demo_task/presentation/screens/home/widgets/technical_field_service_app_bar.dart';
+import 'package:demo_task/presentation/screens/work_order_preview/work_order_preview_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -75,6 +76,8 @@ class HomeScreen extends StatelessWidget {
                   workOrders: state.visibleWorkOrders,
                   isLoadingMore: state.isLoadingMore,
                   paginationErrorMessage: state.paginationErrorMessage,
+                  onWorkOrderPressed: (workOrder) =>
+                      _openWorkOrderPreview(context, workOrder),
                   onRetryPage: () {
                     context.read<WorkOrdersBloc>().add(
                       const WorkOrdersRetryNextPageRequested(),
@@ -88,6 +91,28 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<void> _openWorkOrderPreview(
+  BuildContext context,
+  WorkOrderModel workOrder,
+) async {
+  final nextStatus = await Navigator.of(context).push<WorkOrderStatus>(
+    MaterialPageRoute(
+      builder: (_) => WorkOrderPreviewScreen(workOrder: workOrder),
+    ),
+  );
+
+  if (!context.mounted || nextStatus == null) {
+    return;
+  }
+
+  context.read<WorkOrdersBloc>().add(
+    WorkOrderStatusChangeRequested(
+      workOrderId: workOrder.id,
+      newStatus: nextStatus,
+    ),
+  );
 }
 
 class _InitialErrorView extends StatelessWidget {

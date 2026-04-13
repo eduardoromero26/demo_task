@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('AdvanceWorkOrderStatus', () {
-    test('throws when the transition breaks domain rules', () async {
+    test('throws when pending tries to move directly to completed', () async {
       final repository = InMemoryWorkOrderRepository(latency: Duration.zero);
       final useCase = AdvanceWorkOrderStatus(repository);
       final openWorkOrder = (await repository.fetchWorkOrders(

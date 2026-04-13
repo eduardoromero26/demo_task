@@ -29,14 +29,19 @@ class StellarButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const buttonTextStyle = TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w700,
+    );
+
     final buttonChild = icon == null
-        ? Text(label)
+        ? Text(label, style: buttonTextStyle)
         : Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(icon, size: 18),
               const SizedBox(width: 8),
-              Text(label),
+              Text(label, style: buttonTextStyle),
             ],
           );
 
@@ -46,7 +51,7 @@ class StellarButton extends StatelessWidget {
           onPressed: onPressed,
           style: FilledButton.styleFrom(
             backgroundColor: backgroundColor ?? AppTheme.primary,
-            foregroundColor: foregroundColor ?? AppTheme.textPrimary,
+            foregroundColor: foregroundColor ?? Colors.white,
             padding: padding ?? const EdgeInsets.symmetric(vertical: 14),
             elevation: elevation,
             shadowColor: AppTheme.primary.withValues(alpha: 0.2),
@@ -76,6 +81,8 @@ class StellarButton extends StatelessWidget {
         return FilledButton.tonal(
           onPressed: onPressed,
           style: FilledButton.styleFrom(
+            backgroundColor: backgroundColor ?? AppTheme.secondary,
+            foregroundColor: foregroundColor ?? Colors.white,
             padding:
                 padding ??
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

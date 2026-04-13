@@ -11,12 +11,14 @@ class ActiveJobsSection extends StatelessWidget {
     required this.isLoadingMore,
     required this.paginationErrorMessage,
     required this.onRetryPage,
+    required this.onWorkOrderPressed,
   });
 
   final List<WorkOrderModel> workOrders;
   final bool isLoadingMore;
   final String? paginationErrorMessage;
   final VoidCallback onRetryPage;
+  final ValueChanged<WorkOrderModel> onWorkOrderPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +57,11 @@ class ActiveJobsSection extends StatelessWidget {
 
           return Padding(
             padding: const EdgeInsets.only(bottom: 18),
-            child: _JobSummaryCard(workOrder: workOrders[index]),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => onWorkOrderPressed(workOrders[index]),
+              child: _JobSummaryCard(workOrder: workOrders[index]),
+            ),
           );
         }, childCount: itemCount),
       ),
@@ -184,10 +190,6 @@ Color _statusBackground(WorkOrderStatus status) {
       return AppTheme.primaryTint;
     case WorkOrderStatus.inProgress:
       return const Color(0xFFD9F6FD);
-    case WorkOrderStatus.scheduled:
-      return const Color(0xFFE7F7F5);
-    case WorkOrderStatus.blocked:
-      return const Color(0xFFFDE7E4);
   }
 }
 
@@ -199,9 +201,5 @@ Color _statusForeground(WorkOrderStatus status) {
       return AppTheme.tertiary;
     case WorkOrderStatus.inProgress:
       return const Color(0xFF0F6D84);
-    case WorkOrderStatus.scheduled:
-      return const Color(0xFF0B5F55);
-    case WorkOrderStatus.blocked:
-      return const Color(0xFFB42318);
   }
 }
