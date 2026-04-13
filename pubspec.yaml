@@ -43,7 +43,9 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
+  flutter_launcher_icons: ^0.14.3
   flutter_lints: ^5.0.0
+  flutter_native_splash: ^2.4.6
   flutter_test:
     sdk: flutter
 
@@ -58,6 +60,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/stellar.png
+    - assets/images/stellar_ico.jpg
   fonts:
     - family: Objectivity
       fonts:
@@ -92,3 +95,20 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/images/stellar_ico.jpg
+  remove_alpha_ios: true
+
+flutter_native_splash:
+  color: "#FCF9F8"
+  image: assets/images/stellar_ico.jpg
+  android: true
+  ios: true
+  web: false
+  android_12:
+    color: "#FCF9F8"
+    image: assets/images/stellar_ico.jpg
+    icon_background_color: "#FCF9F8"

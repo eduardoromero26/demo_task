@@ -41,7 +41,7 @@ class HomeScreen extends StatelessWidget {
         builder: (context, state) {
           if (state.status == WorkOrdersLoadStatus.loading &&
               state.workOrders.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+            return const _InitialLoadingView();
           }
 
           if (state.status == WorkOrdersLoadStatus.failure &&
@@ -130,6 +130,57 @@ class _InitialErrorView extends StatelessWidget {
                 context.read<WorkOrdersBloc>().add(const WorkOrdersStarted());
               },
               child: const Text('Try again'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _InitialLoadingView extends StatelessWidget {
+  const _InitialLoadingView();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 104,
+              height: 104,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x14004C55),
+                    blurRadius: 24,
+                    offset: Offset(0, 12),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.all(18),
+              child: Image.asset(
+                'assets/images/stellar_ico.jpg',
+                filterQuality: FilterQuality.none,
+              ),
+            ),
+            const SizedBox(height: 24),
+            const SizedBox(
+              width: 28,
+              height: 28,
+              child: CircularProgressIndicator(strokeWidth: 3),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              'Loading Stellar...',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: AppTheme.tertiary),
             ),
           ],
         ),
