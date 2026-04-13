@@ -1,3 +1,4 @@
+import 'package:demo_task/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class DashboardBottomNavigation extends StatelessWidget {
@@ -8,35 +9,38 @@ class DashboardBottomNavigation extends StatelessWidget {
     return NavigationBar(
       selectedIndex: 0,
       onDestinationSelected: (_) {},
-      indicatorColor: const Color(0xFFDCE8FF),
+      height: 78,
+      indicatorColor: Colors.transparent,
       backgroundColor: Colors.white,
+      surfaceTintColor: Colors.white,
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       labelTextStyle: WidgetStateProperty.resolveWith((states) {
         final selected = states.contains(WidgetState.selected);
         return TextStyle(
-          color: selected ? const Color(0xFF1D4ED8) : const Color(0xFF667085),
+          fontFamily: AppTheme.fontFamily,
+          fontSize: 11,
+          color: selected ? AppTheme.primary : const Color(0xFF8C8C8C),
           fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
         );
       }),
       destinations: const [
         NavigationDestination(
-          icon: Icon(Icons.assignment_outlined),
-          selectedIcon: Icon(Icons.assignment),
-          label: 'Jobs',
+          icon: Icon(Icons.calendar_month_rounded, color: Color(0xFF8C8C8C)),
+          selectedIcon: Icon(
+            Icons.calendar_month_rounded,
+            color: AppTheme.primary,
+          ),
+          label: 'Work Orders',
         ),
         NavigationDestination(
-          icon: Icon(Icons.precision_manufacturing_outlined),
-          selectedIcon: Icon(Icons.precision_manufacturing),
-          label: 'Assets',
+          icon: Icon(Icons.history_rounded, color: Color(0xFF8C8C8C)),
+          selectedIcon: Icon(Icons.history_rounded, color: AppTheme.secondary),
+          label: 'History',
         ),
         NavigationDestination(
-          icon: Icon(Icons.inventory_2_outlined),
-          selectedIcon: Icon(Icons.inventory_2),
-          label: 'Inventory',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.person_outline_rounded),
-          selectedIcon: Icon(Icons.person_rounded),
-          label: 'Profile',
+          icon: Icon(Icons.settings_rounded, color: Color(0xFF8C8C8C)),
+          selectedIcon: Icon(Icons.settings_rounded, color: AppTheme.secondary),
+          label: 'Settings',
         ),
       ],
     );

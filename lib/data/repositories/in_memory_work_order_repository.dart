@@ -4,7 +4,7 @@ import 'package:demo_task/domain/repositories/work_order_repository.dart';
 
 class InMemoryWorkOrderRepository implements WorkOrderRepository {
   InMemoryWorkOrderRepository({
-    this.latency = const Duration(milliseconds: 250),
+    this.latency = const Duration(milliseconds: 3000),
   }) : _pages = _buildPages();
 
   final Duration latency;

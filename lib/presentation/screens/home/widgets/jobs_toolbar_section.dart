@@ -1,4 +1,4 @@
-import 'package:demo_task/core/theme/app_theme.dart';
+import 'package:demo_task/core/widgets/component_library.dart';
 import 'package:flutter/material.dart';
 
 class JobsToolbarSection extends StatelessWidget {
@@ -25,49 +25,28 @@ class JobsToolbarSection extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                StellarHeadline(
                   'Active Jobs',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: const Color(0xFF0F172A),
-                    fontWeight: FontWeight.w800,
-                  ),
+                  size: StellarHeadlineSize.large,
+                  color: const Color(0xFF0F172A),
+                  fontWeight: FontWeight.w800,
                 ),
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    OutlinedButton.icon(
+                    StellarButton(
+                      label: selectedFilterLabel ?? 'Filter',
+                      icon: Icons.tune_rounded,
                       onPressed: onFilterPressed,
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: const Color(0xFFF0F2F8),
-                        foregroundColor: const Color(0xFF111827),
-                        side: BorderSide.none,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 18,
-                          vertical: 14,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      icon: const Icon(Icons.tune_rounded, size: 18),
-                      label: Text(selectedFilterLabel ?? 'Filter'),
+                      variant: StellarButtonVariant.neutral,
                     ),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: FilledButton.icon(
+                      child: StellarButton(
+                        label: 'New Job',
+                        icon: Icons.add_rounded,
                         onPressed: onNewJobPressed,
-                        style: FilledButton.styleFrom(
-                          backgroundColor: AppTheme.primary,
-                          foregroundColor: AppTheme.textPrimary,
-                          elevation: 6,
-                          shadowColor: AppTheme.primary.withValues(alpha: 0.2),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        icon: const Icon(Icons.add_rounded),
-                        label: const Text('New Job'),
+                        elevation: 6,
                       ),
                     ),
                   ],

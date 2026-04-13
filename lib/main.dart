@@ -5,7 +5,7 @@ import 'package:demo_task/domain/usecases/advance_work_order_status.dart';
 import 'package:demo_task/domain/usecases/get_work_orders_page.dart';
 import 'package:demo_task/presentation/bloc/work_orders_bloc.dart';
 import 'package:demo_task/presentation/bloc/work_orders_event.dart';
-import 'package:demo_task/presentation/screens/home_screen.dart';
+import 'package:demo_task/presentation/screens/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
