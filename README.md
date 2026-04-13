@@ -2,7 +2,7 @@
 
 This repository contains the Flutter solution for part 2 of the Stellar technical exercise.
 
-The base app structure and UI direction were reused from part 1, and this second part adapts that foundation into a field-service work-order flow. The result is a focused Flutter take-home built with BLoC and a light clean-architecture split.
+The flutter base app were reused from part 1, and this second part adapts that foundation into a field-service work-order flow. The result is a focused Flutter take-home built with BLoC and a light clean-architecture split.
 
 The app shows a list of work orders backed by local mock data and enforces the main business rule when advancing a work order through its lifecycle.
 
@@ -18,9 +18,6 @@ The app shows a list of work orders backed by local mock data and enforces the m
 
 - Flutter: `3.32.2`
 - Dart: `3.8.1`
-- DevTools: `2.45.1`
-- Dart SDK constraint in project: `^3.8.1`
-- Android NDK used by the project: `27.0.12077973`
 
 ## How to run
 
@@ -39,7 +36,6 @@ Main dependencies:
 - `flutter_bloc: ^9.1.1`
 - `equatable: ^2.0.7`
 - `image_picker: ^1.1.2`
-- `cupertino_icons: ^1.0.8`
 
 Development and tooling:
 
@@ -54,7 +50,6 @@ Development and tooling:
 - I reused the technical base from part 1 of the Stellar exercise and adapted it to the work-order requirements for part 2.
 - I used a work-order domain instead of a minimal generic job title because it gives better surface area for the business rules requested in the assignment.
 - Mock data is stored in-memory and loaded as a single local collection.
-- The primary business action is advancing a work order to its next valid state rather than supporting arbitrary status edits from the UI.
 - Photo handling is local only. There is no backend upload or persistence outside the running app session.
 
 ## Architecture and state management
@@ -69,12 +64,6 @@ Development and tooling:
 - Widgets stay mostly declarative and dispatch events instead of containing business rules.
 - The completion rule is enforced in the domain layer, not in the UI.
 
-## Feature notes
-
-- Work orders load when the screen opens.
-- Work orders can advance only through allowed transitions such as `Pending -> In progress -> Completed`.
-- Completing a work order requires at least one attached photo.
-- Filters only affect the visible list in memory; they do not trigger a new fetch.
 
 ## Dummy or placeholder functionality
 
