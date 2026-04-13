@@ -1,6 +1,10 @@
 export 'stellar_button.dart';
+export 'stellar_bottom_sheet.dart';
 export 'stellar_card.dart';
 export 'stellar_chip.dart';
+export 'stellar_dropdown.dart';
 export 'stellar_empty_state.dart';
 export 'stellar_headline.dart';
 export 'stellar_info_row.dart';
+export 'stellar_modal.dart';
+export 'stellar_snackbar.dart';

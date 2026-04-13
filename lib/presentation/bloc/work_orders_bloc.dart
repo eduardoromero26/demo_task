@@ -159,7 +159,8 @@ class WorkOrdersBloc extends Bloc<WorkOrdersEvent, WorkOrdersState> {
           updatingIds: state.updatingIds
               .where((id) => id != event.workOrderId)
               .toList(),
-          feedbackMessage: '${updated.title} moved to ${updated.status.name}.',
+          feedbackMessage:
+              '${updated.title} updated to ${_statusLabel(updated.status)}.',
         ),
       );
     } on StateError catch (error) {
@@ -188,5 +189,16 @@ class WorkOrdersBloc extends Bloc<WorkOrdersEvent, WorkOrdersState> {
     Emitter<WorkOrdersState> emit,
   ) {
     emit(state.copyWith(feedbackMessage: null));
+  }
+}
+
+String _statusLabel(WorkOrderStatus status) {
+  switch (status) {
+    case WorkOrderStatus.pending:
+      return 'Pending';
+    case WorkOrderStatus.inProgress:
+      return 'In Progress';
+    case WorkOrderStatus.completed:
+      return 'Completed';
   }
 }

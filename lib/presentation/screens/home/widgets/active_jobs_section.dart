@@ -35,7 +35,7 @@ class ActiveJobsSection extends StatelessWidget {
     final itemCount = workOrders.length + (hasFooter ? 1 : 0);
 
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 22),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
           if (index >= workOrders.length) {

@@ -1,4 +1,5 @@
 import 'package:demo_task/core/theme/app_theme.dart';
+import 'package:demo_task/core/widgets/component_library.dart';
 import 'package:demo_task/domain/model/work_order_model.dart';
 import 'package:demo_task/presentation/bloc/work_orders_bloc.dart';
 import 'package:demo_task/presentation/bloc/work_orders_event.dart';
@@ -27,9 +28,7 @@ class HomeScreen extends StatelessWidget {
             return;
           }
 
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(SnackBar(content: Text(message)));
+          showStellarSnackbar(context, message: message);
 
           context.read<WorkOrdersBloc>().add(
             const WorkOrdersFeedbackDismissed(),
@@ -147,64 +146,51 @@ class _InitialErrorView extends StatelessWidget {
 }
 
 void _showPlaceholderSnackBar(BuildContext context, String message) {
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(message)));
+  showStellarSnackbar(context, message: message);
 }
 
 Future<void> _showFilterSheet(
   BuildContext context, {
   required WorkOrderStatus? selectedFilter,
 }) {
-  return showModalBottomSheet<void>(
-    context: context,
-    showDragHandle: true,
-    backgroundColor: Colors.white,
+  return showStellarBottomSheet<void>(
+    context,
     builder: (sheetContext) {
-      return SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Filter jobs',
-                  style: Theme.of(sheetContext).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 12),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: const Text('All jobs'),
-                  trailing: selectedFilter == null
-                      ? const Icon(Icons.check, color: AppTheme.primary)
-                      : null,
-                  onTap: () {
-                    context.read<WorkOrdersBloc>().add(
-                      const WorkOrdersFilterChanged(null),
-                    );
-                    Navigator.of(sheetContext).pop();
-                  },
-                ),
-                ...WorkOrderStatus.values.map(
-                  (status) => ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(formatEnumName(status.name)),
-                    trailing: selectedFilter == status
-                        ? const Icon(Icons.check, color: AppTheme.primary)
-                        : null,
-                    onTap: () {
-                      context.read<WorkOrdersBloc>().add(
-                        WorkOrdersFilterChanged(status),
-                      );
-                      Navigator.of(sheetContext).pop();
-                    },
-                  ),
-                ),
-              ],
+      return StellarBottomSheet(
+        title: 'Filter jobs',
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('All jobs'),
+              trailing: selectedFilter == null
+                  ? const Icon(Icons.check, color: AppTheme.primary)
+                  : null,
+              onTap: () {
+                context.read<WorkOrdersBloc>().add(
+                  const WorkOrdersFilterChanged(null),
+                );
+                Navigator.of(sheetContext).pop();
+              },
             ),
-          ),
+            ...WorkOrderStatus.values.map(
+              (status) => ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(formatEnumName(status.name)),
+                trailing: selectedFilter == status
+                    ? const Icon(Icons.check, color: AppTheme.primary)
+                    : null,
+                onTap: () {
+                  context.read<WorkOrdersBloc>().add(
+                    WorkOrdersFilterChanged(status),
+                  );
+                  Navigator.of(sheetContext).pop();
+                },
+              ),
+            ),
+          ],
         ),
       );
     },

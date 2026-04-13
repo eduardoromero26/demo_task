@@ -35,7 +35,16 @@ void main() {
     await tester.tap(find.text('In Progress').last);
     await tester.pumpAndSettle();
 
+    expect(find.text('Start this work order?'), findsOneWidget);
+
+    await tester.tap(find.text('Start'));
+    await tester.pumpAndSettle();
+
     expect(find.text('IN PROGRESS'), findsOneWidget);
     expect(find.text('Backflow Testing & Prevention'), findsOneWidget);
+    expect(
+      find.text('Backflow Testing & Prevention updated to In Progress.'),
+      findsOneWidget,
+    );
   });
 }

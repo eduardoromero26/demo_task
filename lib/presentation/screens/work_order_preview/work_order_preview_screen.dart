@@ -88,8 +88,9 @@ class WorkOrderPreviewScreen extends StatelessWidget {
               const SizedBox(height: 18),
               StellarCard(
                 child: WorkOrderStatusDropdown(
+                  workOrderTitle: workOrder.title,
                   currentStatus: workOrder.status,
-                  onStatusSelected: (nextStatus) {
+                  onStatusSelected: (nextStatus) async {
                     Navigator.of(context).pop(nextStatus);
                   },
                 ),

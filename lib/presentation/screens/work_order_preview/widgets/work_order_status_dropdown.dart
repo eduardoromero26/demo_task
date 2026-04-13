@@ -1,17 +1,20 @@
 import 'package:demo_task/core/theme/app_theme.dart';
 import 'package:demo_task/core/widgets/component_library.dart';
 import 'package:demo_task/domain/model/work_order_model.dart';
+import 'package:demo_task/presentation/screens/work_order_preview/widgets/work_order_status_confirmation_dialog.dart';
 import 'package:flutter/material.dart';
 
 class WorkOrderStatusDropdown extends StatelessWidget {
   const WorkOrderStatusDropdown({
     super.key,
+    required this.workOrderTitle,
     required this.currentStatus,
     required this.onStatusSelected,
   });
 
+  final String workOrderTitle;
   final WorkOrderStatus currentStatus;
-  final ValueChanged<WorkOrderStatus> onStatusSelected;
+  final Future<void> Function(WorkOrderStatus nextStatus) onStatusSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -28,62 +31,37 @@ class WorkOrderStatusDropdown extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        DropdownButtonFormField<WorkOrderStatus>(
-          key: const ValueKey('work-order-status-dropdown'),
+        StellarDropdownField<WorkOrderStatus>(
+          fieldKey: const ValueKey('work-order-status-dropdown'),
           value: currentStatus,
-          icon: const Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: AppTheme.secondary,
-          ),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.white,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: Color(0xFFD0D5DD)),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: Color(0xFFD0D5DD)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: AppTheme.primary, width: 1.4),
-            ),
-          ),
-          items: WorkOrderStatus.values.map((status) {
-            final isEnabled =
-                status == currentStatus ||
-                currentStatus.canTransitionTo(status);
-
-            return DropdownMenuItem<WorkOrderStatus>(
-              value: status,
-              enabled: isEnabled,
-              child: Opacity(
-                opacity: isEnabled ? 1 : 0.45,
-                child: Text(
-                  isEnabled
-                      ? _statusLabel(status)
-                      : '${_statusLabel(status)} (Locked)',
-                  style: const TextStyle(
-                    color: AppTheme.textPrimary,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
+          options: WorkOrderStatus.values
+              .map(
+                (status) => StellarDropdownOption<WorkOrderStatus>(
+                  value: status,
+                  label: _statusLabel(status),
+                  enabled:
+                      status == currentStatus ||
+                      currentStatus.canTransitionTo(status),
                 ),
-              ),
-            );
-          }).toList(),
-          onChanged: (nextStatus) {
+              )
+              .toList(),
+          onChanged: (nextStatus) async {
             if (nextStatus == null || nextStatus == currentStatus) {
               return;
             }
 
-            onStatusSelected(nextStatus);
+            final confirmed = await showWorkOrderStatusConfirmationDialog(
+              context,
+              workOrderTitle: workOrderTitle,
+              currentStatus: currentStatus,
+              nextStatus: nextStatus,
+            );
+
+            if (!context.mounted || !confirmed) {
+              return;
+            }
+
+            await onStatusSelected(nextStatus);
           },
         ),
       ],
