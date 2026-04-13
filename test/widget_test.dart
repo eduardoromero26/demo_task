@@ -1,30 +1,33 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
+import 'package:demo_task/data/repositories/in_memory_work_order_repository.dart';
+import 'package:demo_task/main.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:demo_task/main.dart';
-
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('renders loaded work orders and supports filtering', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      DemoTaskApp(
+        repository: InMemoryWorkOrderRepository(latency: Duration.zero),
+      ),
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await tester.pumpAndSettle();
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    expect(find.text('Active Jobs'), findsOneWidget);
+    expect(find.text('HVAC System Overhaul'), findsOneWidget);
+    expect(find.text('Filter'), findsOneWidget);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    await tester.tap(find.text('Filter'));
+    await tester.pumpAndSettle();
+
+    final completedOption = find.text('Completed');
+    await tester.ensureVisible(completedOption);
+    await tester.tap(completedOption);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Boiler Repair'), findsOneWidget);
+    expect(find.text('Sensor Calibration'), findsOneWidget);
+    expect(find.text('HVAC System Overhaul'), findsNothing);
   });
 }

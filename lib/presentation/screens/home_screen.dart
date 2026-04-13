@@ -1,45 +1,187 @@
-import 'package:demo_task/presentation/bloc/bloc/job_bloc.dart';
+import 'package:demo_task/core/theme/app_theme.dart';
+import 'package:demo_task/domain/model/work_order_model.dart';
+import 'package:demo_task/presentation/bloc/work_orders_bloc.dart';
+import 'package:demo_task/presentation/bloc/work_orders_event.dart';
+import 'package:demo_task/presentation/bloc/work_orders_state.dart';
+import 'package:demo_task/presentation/widgets/home/active_jobs_section.dart';
+import 'package:demo_task/presentation/widgets/home/dashboard_bottom_navigation.dart';
+import 'package:demo_task/presentation/widgets/home/home_formatters.dart';
+import 'package:demo_task/presentation/widgets/home/jobs_toolbar_section.dart';
+import 'package:demo_task/presentation/widgets/home/technical_field_service_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  @override
-  void initState() {
-    context.read<JobBloc>().add(LoadJobs());
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
-      body: BlocConsumer<JobBloc, JobState>(
-        builder: (BuildContext context, JobState state) {
-          switch (state) {
-            case JobInitial():
-              return Text('Im on initial');
-            case JobLoading():
-              return Center(child: CircularProgressIndicator());
-            case JobLoadedSuccesfull():
-              return ListView.builder(
-                itemCount: state.jobs.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return ListTile(title: Text(state.jobs[index].title ?? ''));
-                },
-              );
-            case JobLoadedWithError():
-              return Center(child: Text('Loaded with Errors'));
+      appBar: const TechnicalFieldServiceAppBar(),
+      bottomNavigationBar: const DashboardBottomNavigation(),
+      body: BlocConsumer<WorkOrdersBloc, WorkOrdersState>(
+        listener: (context, state) {
+          final message = state.feedbackMessage;
+          if (message == null) {
+            return;
           }
+
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(SnackBar(content: Text(message)));
+
+          context.read<WorkOrdersBloc>().add(
+            const WorkOrdersFeedbackDismissed(),
+          );
         },
-        listener: (BuildContext context, JobState state) {},
+        builder: (context, state) {
+          if (state.status == WorkOrdersLoadStatus.loading &&
+              state.workOrders.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state.status == WorkOrdersLoadStatus.failure &&
+              state.workOrders.isEmpty) {
+            return _InitialErrorView(message: state.initialErrorMessage);
+          }
+
+          return NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              if (notification.metrics.pixels >=
+                  notification.metrics.maxScrollExtent - 280) {
+                context.read<WorkOrdersBloc>().add(
+                  const WorkOrdersNextPageRequested(),
+                );
+              }
+
+              return false;
+            },
+            child: CustomScrollView(
+              slivers: [
+                JobsToolbarSection(
+                  selectedFilterLabel: state.selectedFilter == null
+                      ? null
+                      : formatEnumName(state.selectedFilter!.name),
+                  onFilterPressed: () => _showFilterSheet(
+                    context,
+                    selectedFilter: state.selectedFilter,
+                  ),
+                  onNewJobPressed: () => _showPlaceholderSnackBar(
+                    context,
+                    'Mock action: create job',
+                  ),
+                ),
+                ActiveJobsSection(
+                  workOrders: state.visibleWorkOrders,
+                  isLoadingMore: state.isLoadingMore,
+                  paginationErrorMessage: state.paginationErrorMessage,
+                  onRetryPage: () {
+                    context.read<WorkOrdersBloc>().add(
+                      const WorkOrdersRetryNextPageRequested(),
+                    );
+                  },
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
+}
+
+class _InitialErrorView extends StatelessWidget {
+  const _InitialErrorView({required this.message});
+
+  final String? message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              message ?? 'Unable to load work orders.',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            FilledButton(
+              onPressed: () {
+                context.read<WorkOrdersBloc>().add(const WorkOrdersStarted());
+              },
+              child: const Text('Try again'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+void _showPlaceholderSnackBar(BuildContext context, String message) {
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(message)));
+}
+
+Future<void> _showFilterSheet(
+  BuildContext context, {
+  required WorkOrderStatus? selectedFilter,
+}) {
+  return showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    backgroundColor: Colors.white,
+    builder: (sheetContext) {
+      return SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Filter jobs',
+                  style: Theme.of(sheetContext).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 12),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('All jobs'),
+                  trailing: selectedFilter == null
+                      ? const Icon(Icons.check, color: AppTheme.primary)
+                      : null,
+                  onTap: () {
+                    context.read<WorkOrdersBloc>().add(
+                      const WorkOrdersFilterChanged(null),
+                    );
+                    Navigator.of(sheetContext).pop();
+                  },
+                ),
+                ...WorkOrderStatus.values.map(
+                  (status) => ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(formatEnumName(status.name)),
+                    trailing: selectedFilter == status
+                        ? const Icon(Icons.check, color: AppTheme.primary)
+                        : null,
+                    onTap: () {
+                      context.read<WorkOrdersBloc>().add(
+                        WorkOrdersFilterChanged(status),
+                      );
+                      Navigator.of(sheetContext).pop();
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
 }
