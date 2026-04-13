@@ -17,6 +17,13 @@ class AdvanceWorkOrderStatus {
       );
     }
 
+    if (newStatus == WorkOrderStatus.completed &&
+        workOrder.photoPaths.isEmpty) {
+      throw StateError(
+        'Add at least one photo before completing ${workOrder.title}.',
+      );
+    }
+
     return _repository.updateWorkOrderStatus(
       workOrderId: workOrder.id,
       newStatus: newStatus,

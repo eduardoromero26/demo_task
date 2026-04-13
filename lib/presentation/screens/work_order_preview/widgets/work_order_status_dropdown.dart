@@ -1,4 +1,3 @@
-import 'package:demo_task/core/theme/app_theme.dart';
 import 'package:demo_task/core/widgets/component_library.dart';
 import 'package:demo_task/domain/model/work_order_model.dart';
 import 'package:demo_task/presentation/screens/work_order_preview/widgets/work_order_status_confirmation_dialog.dart';
@@ -7,17 +6,17 @@ import 'package:flutter/material.dart';
 class WorkOrderStatusDropdown extends StatelessWidget {
   const WorkOrderStatusDropdown({
     super.key,
-    required this.workOrderTitle,
-    required this.currentStatus,
+    required this.workOrder,
     required this.onStatusSelected,
   });
 
-  final String workOrderTitle;
-  final WorkOrderStatus currentStatus;
+  final WorkOrderModel workOrder;
   final Future<void> Function(WorkOrderStatus nextStatus) onStatusSelected;
 
   @override
   Widget build(BuildContext context) {
+    final currentStatus = workOrder.status;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -52,7 +51,8 @@ class WorkOrderStatusDropdown extends StatelessWidget {
 
             final confirmed = await showWorkOrderStatusConfirmationDialog(
               context,
-              workOrderTitle: workOrderTitle,
+              workOrderId: workOrder.id,
+              workOrderTitle: workOrder.title,
               currentStatus: currentStatus,
               nextStatus: nextStatus,
             );

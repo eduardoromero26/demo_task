@@ -28,6 +28,7 @@ class WorkOrderModel extends Equatable {
     required this.scheduledDate,
     this.description,
     this.assignedTo,
+    this.photoPaths = const <String>[],
   });
 
   final String id;
@@ -37,6 +38,7 @@ class WorkOrderModel extends Equatable {
   final DateTime scheduledDate;
   final String? assignedTo;
   final WorkOrderStatus status;
+  final List<String> photoPaths;
 
   WorkOrderModel copyWith({
     String? id,
@@ -46,6 +48,7 @@ class WorkOrderModel extends Equatable {
     DateTime? scheduledDate,
     String? assignedTo,
     WorkOrderStatus? status,
+    List<String>? photoPaths,
   }) {
     return WorkOrderModel(
       id: id ?? this.id,
@@ -55,6 +58,7 @@ class WorkOrderModel extends Equatable {
       scheduledDate: scheduledDate ?? this.scheduledDate,
       assignedTo: assignedTo ?? this.assignedTo,
       status: status ?? this.status,
+      photoPaths: photoPaths ?? this.photoPaths,
     );
   }
 
@@ -67,5 +71,6 @@ class WorkOrderModel extends Equatable {
     scheduledDate,
     assignedTo,
     status,
+    photoPaths,
   ];
 }

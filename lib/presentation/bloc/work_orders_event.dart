@@ -47,6 +47,15 @@ class WorkOrderStatusChangeRequested extends WorkOrdersEvent {
   List<Object?> get props => [workOrderId, newStatus];
 }
 
+class WorkOrderPhotoCaptureRequested extends WorkOrdersEvent {
+  const WorkOrderPhotoCaptureRequested({required this.workOrderId});
+
+  final String workOrderId;
+
+  @override
+  List<Object?> get props => [workOrderId];
+}
+
 class WorkOrdersFeedbackDismissed extends WorkOrdersEvent {
   const WorkOrdersFeedbackDismissed();
 }

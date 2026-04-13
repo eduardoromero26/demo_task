@@ -1,6 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:demo_task/domain/model/work_order_model.dart';
+import 'package:demo_task/domain/usecases/attach_work_order_photo.dart';
 import 'package:demo_task/domain/usecases/advance_work_order_status.dart';
+import 'package:demo_task/domain/usecases/capture_work_order_photo.dart';
 import 'package:demo_task/domain/usecases/get_work_orders_page.dart';
 import 'package:demo_task/presentation/bloc/work_orders_event.dart';
 import 'package:demo_task/presentation/bloc/work_orders_state.dart';
@@ -9,19 +11,26 @@ class WorkOrdersBloc extends Bloc<WorkOrdersEvent, WorkOrdersState> {
   WorkOrdersBloc({
     required GetWorkOrdersPage getWorkOrdersPage,
     required AdvanceWorkOrderStatus advanceWorkOrderStatus,
+    required CaptureWorkOrderPhoto captureWorkOrderPhoto,
+    required AttachWorkOrderPhoto attachWorkOrderPhoto,
   }) : _getWorkOrdersPage = getWorkOrdersPage,
        _advanceWorkOrderStatus = advanceWorkOrderStatus,
+       _captureWorkOrderPhoto = captureWorkOrderPhoto,
+       _attachWorkOrderPhoto = attachWorkOrderPhoto,
        super(const WorkOrdersState()) {
     on<WorkOrdersStarted>(_onStarted);
     on<WorkOrdersNextPageRequested>(_onNextPageRequested);
     on<WorkOrdersRetryNextPageRequested>(_onRetryNextPageRequested);
     on<WorkOrdersFilterChanged>(_onFilterChanged);
+    on<WorkOrderPhotoCaptureRequested>(_onPhotoCaptureRequested);
     on<WorkOrderStatusChangeRequested>(_onStatusChangeRequested);
     on<WorkOrdersFeedbackDismissed>(_onFeedbackDismissed);
   }
 
   final GetWorkOrdersPage _getWorkOrdersPage;
   final AdvanceWorkOrderStatus _advanceWorkOrderStatus;
+  final CaptureWorkOrderPhoto _captureWorkOrderPhoto;
+  final AttachWorkOrderPhoto _attachWorkOrderPhoto;
 
   Future<void> _onStarted(
     WorkOrdersStarted event,
@@ -44,6 +53,7 @@ class WorkOrdersBloc extends Bloc<WorkOrdersEvent, WorkOrdersState> {
         feedbackMessage: null,
         isLoadingMore: false,
         updatingIds: const <String>[],
+        capturingPhotoIds: const <String>[],
       ),
     );
 
@@ -120,6 +130,63 @@ class WorkOrdersBloc extends Bloc<WorkOrdersEvent, WorkOrdersState> {
     Emitter<WorkOrdersState> emit,
   ) {
     emit(state.copyWith(selectedFilter: event.filter));
+  }
+
+  Future<void> _onPhotoCaptureRequested(
+    WorkOrderPhotoCaptureRequested event,
+    Emitter<WorkOrdersState> emit,
+  ) async {
+    if (state.capturingPhotoIds.contains(event.workOrderId)) {
+      return;
+    }
+
+    emit(
+      state.copyWith(
+        capturingPhotoIds: [...state.capturingPhotoIds, event.workOrderId],
+      ),
+    );
+
+    try {
+      final photoPath = await _captureWorkOrderPhoto();
+
+      if (photoPath == null) {
+        emit(
+          state.copyWith(
+            capturingPhotoIds: state.capturingPhotoIds
+                .where((id) => id != event.workOrderId)
+                .toList(),
+          ),
+        );
+        return;
+      }
+
+      final updated = await _attachWorkOrderPhoto(
+        workOrderId: event.workOrderId,
+        photoPath: photoPath,
+      );
+
+      final updatedWorkOrders = state.workOrders
+          .map((item) => item.id == updated.id ? updated : item)
+          .toList();
+
+      emit(
+        state.copyWith(
+          workOrders: updatedWorkOrders,
+          capturingPhotoIds: state.capturingPhotoIds
+              .where((id) => id != event.workOrderId)
+              .toList(),
+        ),
+      );
+    } catch (_) {
+      emit(
+        state.copyWith(
+          capturingPhotoIds: state.capturingPhotoIds
+              .where((id) => id != event.workOrderId)
+              .toList(),
+          feedbackMessage: 'Unable to attach a photo right now.',
+        ),
+      );
+    }
   }
 
   Future<void> _onStatusChangeRequested(

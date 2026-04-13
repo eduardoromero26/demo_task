@@ -30,6 +30,30 @@ class InMemoryWorkOrderRepository implements WorkOrderRepository {
   }
 
   @override
+  Future<WorkOrderModel> attachPhotoToWorkOrder({
+    required String workOrderId,
+    required String photoPath,
+  }) async {
+    await Future<void>.delayed(latency);
+
+    for (final entry in _pages.entries) {
+      final index = entry.value.indexWhere((item) => item.id == workOrderId);
+      if (index == -1) {
+        continue;
+      }
+
+      final current = entry.value[index];
+      final updated = current.copyWith(
+        photoPaths: [...current.photoPaths, photoPath],
+      );
+      entry.value[index] = updated;
+      return updated.copyWith();
+    }
+
+    throw StateError('Work order $workOrderId was not found.');
+  }
+
+  @override
   Future<WorkOrderModel> updateWorkOrderStatus({
     required String workOrderId,
     required WorkOrderStatus newStatus,

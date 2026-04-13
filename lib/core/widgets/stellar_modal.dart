@@ -19,37 +19,42 @@ class StellarModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.sizeOf(context).height;
+
     return Dialog(
       backgroundColor: Colors.white,
       insetPadding: insetPadding,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (leading != null) ...[leading!, const SizedBox(height: 16)],
-            if (title != null)
-              StellarHeadline(
-                title!,
-                size: StellarHeadlineSize.small,
-                fontWeight: FontWeight.w800,
-              ),
-            if (description != null) ...[
-              if (title != null) const SizedBox(height: 10),
-              Text(
-                description!,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: const Color(0xFF667085),
-                  height: 1.45,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: screenHeight * 0.82),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (leading != null) ...[leading!, const SizedBox(height: 16)],
+              if (title != null)
+                StellarHeadline(
+                  title!,
+                  size: StellarHeadlineSize.small,
+                  fontWeight: FontWeight.w800,
                 ),
-              ),
+              if (description != null) ...[
+                if (title != null) const SizedBox(height: 10),
+                Text(
+                  description!,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: const Color(0xFF667085),
+                    height: 1.45,
+                  ),
+                ),
+              ],
+              if (title != null || description != null)
+                const SizedBox(height: 20),
+              child,
             ],
-            if (title != null || description != null)
-              const SizedBox(height: 20),
-            child,
-          ],
+          ),
         ),
       ),
     );

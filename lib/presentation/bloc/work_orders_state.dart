@@ -17,6 +17,7 @@ class WorkOrdersState extends Equatable {
     this.paginationErrorMessage,
     this.feedbackMessage,
     this.updatingIds = const <String>[],
+    this.capturingPhotoIds = const <String>[],
   });
 
   final WorkOrdersLoadStatus status;
@@ -29,6 +30,7 @@ class WorkOrdersState extends Equatable {
   final String? paginationErrorMessage;
   final String? feedbackMessage;
   final List<String> updatingIds;
+  final List<String> capturingPhotoIds;
 
   List<WorkOrderModel> get visibleWorkOrders {
     final filter = selectedFilter;
@@ -50,6 +52,7 @@ class WorkOrdersState extends Equatable {
     Object? paginationErrorMessage = _unset,
     Object? feedbackMessage = _unset,
     List<String>? updatingIds,
+    List<String>? capturingPhotoIds,
   }) {
     return WorkOrdersState(
       status: status ?? this.status,
@@ -70,6 +73,7 @@ class WorkOrdersState extends Equatable {
           ? this.feedbackMessage
           : feedbackMessage as String?,
       updatingIds: updatingIds ?? this.updatingIds,
+      capturingPhotoIds: capturingPhotoIds ?? this.capturingPhotoIds,
     );
   }
 
@@ -85,5 +89,6 @@ class WorkOrdersState extends Equatable {
     paginationErrorMessage,
     feedbackMessage,
     updatingIds,
+    capturingPhotoIds,
   ];
 }

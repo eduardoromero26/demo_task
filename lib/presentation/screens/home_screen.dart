@@ -28,6 +28,10 @@ class HomeScreen extends StatelessWidget {
             return;
           }
 
+          if (!(ModalRoute.of(context)?.isCurrent ?? true)) {
+            return;
+          }
+
           showStellarSnackbar(context, message: message);
 
           context.read<WorkOrdersBloc>().add(
@@ -96,20 +100,9 @@ Future<void> _openWorkOrderPreview(
   BuildContext context,
   WorkOrderModel workOrder,
 ) async {
-  final nextStatus = await Navigator.of(context).push<WorkOrderStatus>(
+  await Navigator.of(context).push<void>(
     MaterialPageRoute(
       builder: (_) => WorkOrderPreviewScreen(workOrder: workOrder),
-    ),
-  );
-
-  if (!context.mounted || nextStatus == null) {
-    return;
-  }
-
-  context.read<WorkOrdersBloc>().add(
-    WorkOrderStatusChangeRequested(
-      workOrderId: workOrder.id,
-      newStatus: nextStatus,
     ),
   );
 }
