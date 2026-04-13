@@ -1,6 +1,6 @@
-import 'package:demo_task/core/theme/app_theme.dart';
 import 'package:demo_task/core/widgets/component_library.dart';
 import 'package:demo_task/domain/model/work_order_model.dart';
+import 'package:demo_task/presentation/work_order_status_colors.dart';
 import 'package:demo_task/presentation/screens/home/widgets/home_formatters.dart';
 import 'package:flutter/material.dart';
 
@@ -76,8 +76,8 @@ class _JobSummaryCard extends StatelessWidget {
               const Spacer(),
               StellarChip(
                 label: formatEnumName(workOrder.status.name).toUpperCase(),
-                backgroundColor: _statusBackground(workOrder.status),
-                foregroundColor: _statusForeground(workOrder.status),
+                backgroundColor: workOrderStatusBackground(workOrder.status),
+                foregroundColor: workOrderStatusForeground(workOrder.status),
                 textStyle: textTheme.labelMedium?.copyWith(
                   fontWeight: FontWeight.w800,
                   letterSpacing: 1,
@@ -122,27 +122,5 @@ class _JobSummaryCard extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-Color _statusBackground(WorkOrderStatus status) {
-  switch (status) {
-    case WorkOrderStatus.pending:
-      return const Color(0xFFFFE7C7);
-    case WorkOrderStatus.completed:
-      return AppTheme.primaryTint;
-    case WorkOrderStatus.inProgress:
-      return const Color(0xFFD9F6FD);
-  }
-}
-
-Color _statusForeground(WorkOrderStatus status) {
-  switch (status) {
-    case WorkOrderStatus.pending:
-      return const Color(0xFF8A4300);
-    case WorkOrderStatus.completed:
-      return AppTheme.tertiary;
-    case WorkOrderStatus.inProgress:
-      return const Color(0xFF0F6D84);
   }
 }

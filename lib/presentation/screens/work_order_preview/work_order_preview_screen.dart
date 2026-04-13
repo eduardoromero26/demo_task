@@ -1,11 +1,11 @@
 import 'dart:io';
 
-import 'package:demo_task/core/theme/app_theme.dart';
 import 'package:demo_task/core/widgets/component_library.dart';
 import 'package:demo_task/domain/model/work_order_model.dart';
 import 'package:demo_task/presentation/bloc/work_orders_bloc.dart';
 import 'package:demo_task/presentation/bloc/work_orders_event.dart';
 import 'package:demo_task/presentation/bloc/work_orders_state.dart';
+import 'package:demo_task/presentation/work_order_status_colors.dart';
 import 'package:demo_task/presentation/screens/home/widgets/home_formatters.dart';
 import 'package:demo_task/presentation/screens/work_order_preview/widgets/work_order_status_dropdown.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +31,10 @@ class WorkOrderPreviewScreen extends StatelessWidget {
         context.read<WorkOrdersBloc>().add(const WorkOrdersFeedbackDismissed());
       },
       builder: (context, state) {
-        final currentWorkOrder = _resolveCurrentWorkOrder(state, workOrder);
+        final currentWorkOrder = state.workOrders.firstWhere(
+          (item) => item.id == workOrder.id,
+          orElse: () => workOrder,
+        );
         final isUpdating = state.updatingIds.contains(currentWorkOrder.id);
         final isCapturing = state.capturingPhotoIds.contains(
           currentWorkOrder.id,
@@ -59,10 +62,10 @@ class WorkOrderPreviewScreen extends StatelessWidget {
                         label: formatEnumName(
                           currentWorkOrder.status.name,
                         ).toUpperCase(),
-                        backgroundColor: _statusBackground(
+                        backgroundColor: workOrderStatusBackground(
                           currentWorkOrder.status,
                         ),
-                        foregroundColor: _statusForeground(
+                        foregroundColor: workOrderStatusForeground(
                           currentWorkOrder.status,
                         ),
                       ),
@@ -187,40 +190,5 @@ class WorkOrderPreviewScreen extends StatelessWidget {
         );
       },
     );
-  }
-}
-
-WorkOrderModel _resolveCurrentWorkOrder(
-  WorkOrdersState state,
-  WorkOrderModel fallback,
-) {
-  for (final item in state.workOrders) {
-    if (item.id == fallback.id) {
-      return item;
-    }
-  }
-
-  return fallback;
-}
-
-Color _statusBackground(WorkOrderStatus status) {
-  switch (status) {
-    case WorkOrderStatus.pending:
-      return const Color(0xFFFFE7C7);
-    case WorkOrderStatus.completed:
-      return AppTheme.primaryTint;
-    case WorkOrderStatus.inProgress:
-      return const Color(0xFFD9F6FD);
-  }
-}
-
-Color _statusForeground(WorkOrderStatus status) {
-  switch (status) {
-    case WorkOrderStatus.pending:
-      return const Color(0xFF8A4300);
-    case WorkOrderStatus.completed:
-      return AppTheme.tertiary;
-    case WorkOrderStatus.inProgress:
-      return const Color(0xFF0F6D84);
   }
 }
