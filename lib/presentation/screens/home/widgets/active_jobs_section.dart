@@ -8,16 +8,10 @@ class ActiveJobsSection extends StatelessWidget {
   const ActiveJobsSection({
     super.key,
     required this.workOrders,
-    required this.isLoadingMore,
-    required this.paginationErrorMessage,
-    required this.onRetryPage,
     required this.onWorkOrderPressed,
   });
 
   final List<WorkOrderModel> workOrders;
-  final bool isLoadingMore;
-  final String? paginationErrorMessage;
-  final VoidCallback onRetryPage;
   final ValueChanged<WorkOrderModel> onWorkOrderPressed;
 
   @override
@@ -31,30 +25,10 @@ class ActiveJobsSection extends StatelessWidget {
       );
     }
 
-    final hasFooter = isLoadingMore || paginationErrorMessage != null;
-    final itemCount = workOrders.length + (hasFooter ? 1 : 0);
-
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
-          if (index >= workOrders.length) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 18),
-              child: isLoadingMore
-                  ? const Center(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 20),
-                        child: CircularProgressIndicator(),
-                      ),
-                    )
-                  : _PaginationRetryCard(
-                      message: paginationErrorMessage!,
-                      onRetryPage: onRetryPage,
-                    ),
-            );
-          }
-
           return Padding(
             padding: const EdgeInsets.only(bottom: 18),
             child: GestureDetector(
@@ -63,7 +37,7 @@ class ActiveJobsSection extends StatelessWidget {
               child: _JobSummaryCard(workOrder: workOrders[index]),
             ),
           );
-        }, childCount: itemCount),
+        }, childCount: workOrders.length),
       ),
     );
   }
@@ -144,37 +118,6 @@ class _JobSummaryCard extends StatelessWidget {
                   text: formatTimeLabel(workOrder.scheduledDate),
                 ),
             ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PaginationRetryCard extends StatelessWidget {
-  const _PaginationRetryCard({
-    required this.message,
-    required this.onRetryPage,
-  });
-
-  final String message;
-  final VoidCallback onRetryPage;
-
-  @override
-  Widget build(BuildContext context) {
-    return StellarCard(
-      borderRadius: 20,
-      padding: const EdgeInsets.all(18),
-      boxShadow: const [],
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(message),
-          const SizedBox(height: 12),
-          StellarButton(
-            label: 'Retry page',
-            onPressed: onRetryPage,
-            variant: StellarButtonVariant.tonal,
           ),
         ],
       ),

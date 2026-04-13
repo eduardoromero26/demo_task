@@ -1,32 +1,21 @@
-import 'package:demo_task/data/mocks/work_order_mock_pages.dart';
+import 'package:demo_task/data/mocks/work_order_mocks.dart';
 import 'package:demo_task/domain/model/work_order_model.dart';
-import 'package:demo_task/domain/model/work_order_page.dart';
 import 'package:demo_task/domain/repositories/work_order_repository.dart';
 
 class InMemoryWorkOrderRepository implements WorkOrderRepository {
   InMemoryWorkOrderRepository({
     this.latency = const Duration(milliseconds: 2000),
-    Map<int, List<WorkOrderModel>>? pages,
-  }) : _pages = _clonePages(pages ?? buildWorkOrderMockPages());
+    List<WorkOrderModel>? workOrders,
+  }) : _workOrders = _cloneWorkOrders(workOrders ?? buildWorkOrderMocks());
 
   final Duration latency;
-  final Map<int, List<WorkOrderModel>> _pages;
-  bool _pageThreeShouldFail = true;
+  final List<WorkOrderModel> _workOrders;
 
   @override
-  Future<WorkOrderPage> fetchWorkOrders({required int page}) async {
+  Future<List<WorkOrderModel>> fetchWorkOrders() async {
     await Future<void>.delayed(latency);
 
-    if (page == 3 && _pageThreeShouldFail) {
-      _pageThreeShouldFail = false;
-      throw Exception('Page 3 failed. Existing items remain visible.');
-    }
-
-    final items = _pages[page] ?? const <WorkOrderModel>[];
-    return WorkOrderPage(
-      items: items.map((workOrder) => workOrder.copyWith()).toList(),
-      hasMore: page < _pages.length,
-    );
+    return _cloneWorkOrders(_workOrders);
   }
 
   @override
@@ -36,21 +25,14 @@ class InMemoryWorkOrderRepository implements WorkOrderRepository {
   }) async {
     await Future<void>.delayed(latency);
 
-    for (final entry in _pages.entries) {
-      final index = entry.value.indexWhere((item) => item.id == workOrderId);
-      if (index == -1) {
-        continue;
-      }
+    final index = _findWorkOrderIndex(workOrderId);
 
-      final current = entry.value[index];
-      final updated = current.copyWith(
-        photoPaths: [...current.photoPaths, photoPath],
-      );
-      entry.value[index] = updated;
-      return updated.copyWith();
-    }
-
-    throw StateError('Work order $workOrderId was not found.');
+    final current = _workOrders[index];
+    final updated = current.copyWith(
+      photoPaths: [...current.photoPaths, photoPath],
+    );
+    _workOrders[index] = updated;
+    return updated.copyWith();
   }
 
   @override
@@ -60,35 +42,32 @@ class InMemoryWorkOrderRepository implements WorkOrderRepository {
   }) async {
     await Future<void>.delayed(latency);
 
-    for (final entry in _pages.entries) {
-      final index = entry.value.indexWhere((item) => item.id == workOrderId);
-      if (index == -1) {
-        continue;
-      }
+    final index = _findWorkOrderIndex(workOrderId);
 
-      final current = entry.value[index];
-      final shouldAssignCurrentUser =
-          newStatus != WorkOrderStatus.pending &&
-          (current.assignedTo == null || current.assignedTo!.trim().isEmpty);
-      final updated = current.copyWith(
-        status: newStatus,
-        assignedTo: shouldAssignCurrentUser ? 'You' : current.assignedTo,
-      );
-      entry.value[index] = updated;
-      return updated.copyWith();
-    }
-
-    throw StateError('Work order $workOrderId was not found.');
+    final current = _workOrders[index];
+    final shouldAssignCurrentUser =
+        newStatus != WorkOrderStatus.pending &&
+        (current.assignedTo == null || current.assignedTo!.trim().isEmpty);
+    final updated = current.copyWith(
+      status: newStatus,
+      assignedTo: shouldAssignCurrentUser ? 'You' : current.assignedTo,
+    );
+    _workOrders[index] = updated;
+    return updated.copyWith();
   }
 
-  static Map<int, List<WorkOrderModel>> _clonePages(
-    Map<int, List<WorkOrderModel>> pages,
+  int _findWorkOrderIndex(String workOrderId) {
+    final index = _workOrders.indexWhere((item) => item.id == workOrderId);
+    if (index == -1) {
+      throw StateError('Work order $workOrderId was not found.');
+    }
+
+    return index;
+  }
+
+  static List<WorkOrderModel> _cloneWorkOrders(
+    List<WorkOrderModel> workOrders,
   ) {
-    return {
-      for (final entry in pages.entries)
-        entry.key: entry.value
-            .map((workOrder) => workOrder.copyWith())
-            .toList(),
-    };
+    return workOrders.map((workOrder) => workOrder.copyWith()).toList();
   }
 }

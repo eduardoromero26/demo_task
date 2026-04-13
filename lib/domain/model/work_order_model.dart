@@ -3,19 +3,15 @@ import 'package:equatable/equatable.dart';
 enum WorkOrderStatus { pending, inProgress, completed }
 
 extension WorkOrderStatusX on WorkOrderStatus {
-  List<WorkOrderStatus> get allowedTransitions {
+  bool canTransitionTo(WorkOrderStatus nextStatus) {
     switch (this) {
       case WorkOrderStatus.pending:
-        return const [WorkOrderStatus.inProgress];
+        return nextStatus == WorkOrderStatus.inProgress;
       case WorkOrderStatus.inProgress:
-        return const [WorkOrderStatus.completed];
+        return nextStatus == WorkOrderStatus.completed;
       case WorkOrderStatus.completed:
-        return const [];
+        return false;
     }
-  }
-
-  bool canTransitionTo(WorkOrderStatus nextStatus) {
-    return allowedTransitions.contains(nextStatus);
   }
 }
 

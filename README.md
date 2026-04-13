@@ -1,6 +1,6 @@
 # demo_task
 
-This project demonstrates a reasonably scoped Flutter feature built with BLoC and Clean Architecture principles. The app shows a paginated work-order list backed by mock data, supports retrying a failed pagination request, and applies domain rules when advancing a work order through its lifecycle.
+This project demonstrates a focused Flutter take-home built with BLoC and a light clean-architecture split. The app shows a work-order list backed by local mock data and enforces the main business rule when advancing a work order through its lifecycle.
 
 ## How to run
 
@@ -12,18 +12,18 @@ This project demonstrates a reasonably scoped Flutter feature built with BLoC an
 ## Assumptions
 
 - I used a work-order domain instead of a minimal generic job title because the repository structure in the starter code already suggested that direction and it gives a better surface area for business rules.
-- Mock data is stored in-memory and page 3 is intentionally configured to fail once so the pagination error and retry path can be demonstrated.
+- Mock data is stored in-memory and loaded as a single local collection.
 - The primary business action is advancing a work order to its next valid state rather than supporting arbitrary status edits from the UI.
 
 ## Architecture and state management
 
-- `domain`: entities, repository contract, and use cases. Business rules for valid status transitions live in the domain layer and are enforced before repository updates.
-- `data`: a fake in-memory repository that simulates paginated responses and a one-time failure on page 3.
-- `presentation`: a `WorkOrdersBloc` with explicit events and a single immutable state model. The state separately tracks initial loading, pagination loading, pagination failure, filters, and per-item update progress so the UI can stay predictable.
+- `domain`: the `WorkOrderModel`, repository contracts, and the single business use case that matters here: advancing status with transition validation and photo-before-completion enforcement.
+- `data`: a fake in-memory work-order repository plus a camera-backed photo repository.
+- `presentation`: one `WorkOrdersBloc`, a home screen, and a work-order preview flow. Home-specific UI is kept close to the screen, while the larger reusable visual pieces stay in separate widgets.
 
 ## Feature notes
 
-- Page 1 loads when the screen opens.
-- Scrolling near the bottom requests the next page.
-- When page 3 fails, already loaded items remain visible and an inline retry card is shown.
-- Work orders can advance only through allowed transitions such as `Open -> Scheduled -> In progress -> Completed`.
+- Work orders load when the screen opens.
+- Work orders can advance only through allowed transitions such as `Pending -> In progress -> Completed`.
+- Completing a work order requires at least one attached photo.
+- Filters only affect the visible list in memory; they do not trigger a new fetch.

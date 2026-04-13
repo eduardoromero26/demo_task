@@ -5,10 +5,7 @@ import 'package:demo_task/presentation/bloc/work_orders_bloc.dart';
 import 'package:demo_task/presentation/bloc/work_orders_event.dart';
 import 'package:demo_task/presentation/bloc/work_orders_state.dart';
 import 'package:demo_task/presentation/screens/home/widgets/active_jobs_section.dart';
-import 'package:demo_task/presentation/screens/home/widgets/dashboard_bottom_navigation.dart';
 import 'package:demo_task/presentation/screens/home/widgets/home_formatters.dart';
-import 'package:demo_task/presentation/screens/home/widgets/jobs_toolbar_section.dart';
-import 'package:demo_task/presentation/screens/home/widgets/technical_field_service_app_bar.dart';
 import 'package:demo_task/presentation/screens/work_order_preview/work_order_preview_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,8 +16,8 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const TechnicalFieldServiceAppBar(),
-      bottomNavigationBar: const DashboardBottomNavigation(),
+      appBar: const _HomeAppBar(),
+      bottomNavigationBar: const _HomeBottomNavigation(),
       body: BlocConsumer<WorkOrdersBloc, WorkOrdersState>(
         listener: (context, state) {
           final message = state.feedbackMessage;
@@ -49,50 +46,211 @@ class HomeScreen extends StatelessWidget {
             return _InitialErrorView(message: state.initialErrorMessage);
           }
 
-          return NotificationListener<ScrollNotification>(
-            onNotification: (notification) {
-              if (notification.metrics.pixels >=
-                  notification.metrics.maxScrollExtent - 280) {
-                context.read<WorkOrdersBloc>().add(
-                  const WorkOrdersNextPageRequested(),
-                );
-              }
-
-              return false;
-            },
-            child: CustomScrollView(
-              slivers: [
-                JobsToolbarSection(
-                  selectedFilterLabel: state.selectedFilter == null
-                      ? null
-                      : formatEnumName(state.selectedFilter!.name),
-                  onFilterPressed: () => _showFilterSheet(
-                    context,
-                    selectedFilter: state.selectedFilter,
-                  ),
-                  onNewJobPressed: () => _showPlaceholderSnackBar(
-                    context,
-                    'Mock action: create job',
-                  ),
+          return CustomScrollView(
+            slivers: [
+              _JobsToolbarSection(
+                selectedFilterLabel: state.selectedFilter == null
+                    ? null
+                    : formatEnumName(state.selectedFilter!.name),
+                onFilterPressed: () => _showFilterSheet(
+                  context,
+                  selectedFilter: state.selectedFilter,
                 ),
-                ActiveJobsSection(
-                  workOrders: state.visibleWorkOrders,
-                  isLoadingMore: state.isLoadingMore,
-                  paginationErrorMessage: state.paginationErrorMessage,
-                  onWorkOrderPressed: (workOrder) =>
-                      _openWorkOrderPreview(context, workOrder),
-                  onRetryPage: () {
-                    context.read<WorkOrdersBloc>().add(
-                      const WorkOrdersRetryNextPageRequested(),
-                    );
-                  },
+                onNewJobPressed: () => showStellarSnackbar(
+                  context,
+                  message: 'Mock action: create job',
                 ),
-              ],
-            ),
+              ),
+              ActiveJobsSection(
+                workOrders: state.visibleWorkOrders,
+                onWorkOrderPressed: (workOrder) =>
+                    _openWorkOrderPreview(context, workOrder),
+              ),
+            ],
           );
         },
       ),
     );
+  }
+}
+
+class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const _HomeAppBar();
+
+  static const _stellarAssetPath = 'assets/images/stellar.png';
+  static const _logoSize = 48.0;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(72);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      toolbarHeight: 72,
+      titleSpacing: 0,
+      leadingWidth: 80,
+      leading: Padding(
+        padding: const EdgeInsets.only(left: 16, top: 12, bottom: 12),
+        child: SizedBox.square(
+          dimension: _logoSize,
+          child: Image.asset(
+            _stellarAssetPath,
+            fit: BoxFit.contain,
+            errorBuilder: (_, __, ___) {
+              return DecoratedBox(
+                decoration: BoxDecoration(
+                  color: AppTheme.surfaceHigh,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.handyman_rounded,
+                  color: AppTheme.primary,
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+      actions: [
+        IconButton(
+          onPressed: () {},
+          icon: const Icon(Icons.notifications_none_rounded),
+          color: AppTheme.secondary,
+        ),
+      ],
+    );
+  }
+}
+
+class _HomeBottomNavigation extends StatelessWidget {
+  const _HomeBottomNavigation();
+
+  @override
+  Widget build(BuildContext context) {
+    return NavigationBar(
+      selectedIndex: 0,
+      onDestinationSelected: (_) {},
+      height: 78,
+      indicatorColor: Colors.transparent,
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.white,
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        final selected = states.contains(WidgetState.selected);
+        return TextStyle(
+          fontFamily: AppTheme.fontFamily,
+          fontSize: 11,
+          color: selected ? AppTheme.primary : const Color(0xFF8C8C8C),
+          fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+        );
+      }),
+      destinations: const [
+        NavigationDestination(
+          icon: Icon(Icons.calendar_month_rounded, color: Color(0xFF8C8C8C)),
+          selectedIcon: Icon(
+            Icons.calendar_month_rounded,
+            color: AppTheme.primary,
+          ),
+          label: 'Work Orders',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.history_rounded, color: Color(0xFF8C8C8C)),
+          selectedIcon: Icon(Icons.history_rounded, color: AppTheme.secondary),
+          label: 'History',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.settings_rounded, color: Color(0xFF8C8C8C)),
+          selectedIcon: Icon(Icons.settings_rounded, color: AppTheme.secondary),
+          label: 'Settings',
+        ),
+      ],
+    );
+  }
+}
+
+class _JobsToolbarSection extends StatelessWidget {
+  const _JobsToolbarSection({
+    required this.onFilterPressed,
+    required this.onNewJobPressed,
+    this.selectedFilterLabel,
+  });
+
+  final VoidCallback onFilterPressed;
+  final VoidCallback onNewJobPressed;
+  final String? selectedFilterLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverPersistentHeader(
+      pinned: true,
+      delegate: _JobsToolbarHeaderDelegate(
+        child: ColoredBox(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const StellarHeadline(
+                  'Active Jobs',
+                  size: StellarHeadlineSize.large,
+                  color: Color(0xFF0F172A),
+                  fontWeight: FontWeight.w800,
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    StellarButton(
+                      label: selectedFilterLabel ?? 'Filter',
+                      icon: Icons.tune_rounded,
+                      onPressed: onFilterPressed,
+                      variant: StellarButtonVariant.neutral,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: StellarButton(
+                        label: 'New Job',
+                        icon: Icons.add_rounded,
+                        onPressed: onNewJobPressed,
+                        elevation: 6,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _JobsToolbarHeaderDelegate extends SliverPersistentHeaderDelegate {
+  const _JobsToolbarHeaderDelegate({required this.child});
+
+  static const _headerHeight = 126.0;
+
+  final Widget child;
+
+  @override
+  double get minExtent => _headerHeight;
+
+  @override
+  double get maxExtent => _headerHeight;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return child;
+  }
+
+  @override
+  bool shouldRebuild(covariant _JobsToolbarHeaderDelegate oldDelegate) {
+    return oldDelegate.child != child;
   }
 }
 
@@ -187,10 +345,6 @@ class _InitialLoadingView extends StatelessWidget {
       ),
     );
   }
-}
-
-void _showPlaceholderSnackBar(BuildContext context, String message) {
-  showStellarSnackbar(context, message: message);
 }
 
 Future<void> _showFilterSheet(

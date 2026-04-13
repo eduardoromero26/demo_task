@@ -1,36 +1,30 @@
 import 'package:bloc/bloc.dart';
 import 'package:demo_task/domain/model/work_order_model.dart';
-import 'package:demo_task/domain/usecases/attach_work_order_photo.dart';
+import 'package:demo_task/domain/repositories/work_order_photo_repository.dart';
+import 'package:demo_task/domain/repositories/work_order_repository.dart';
 import 'package:demo_task/domain/usecases/advance_work_order_status.dart';
-import 'package:demo_task/domain/usecases/capture_work_order_photo.dart';
-import 'package:demo_task/domain/usecases/get_work_orders_page.dart';
 import 'package:demo_task/presentation/bloc/work_orders_event.dart';
 import 'package:demo_task/presentation/bloc/work_orders_state.dart';
 
 class WorkOrdersBloc extends Bloc<WorkOrdersEvent, WorkOrdersState> {
   WorkOrdersBloc({
-    required GetWorkOrdersPage getWorkOrdersPage,
+    required WorkOrderRepository workOrderRepository,
+    required WorkOrderPhotoRepository workOrderPhotoRepository,
     required AdvanceWorkOrderStatus advanceWorkOrderStatus,
-    required CaptureWorkOrderPhoto captureWorkOrderPhoto,
-    required AttachWorkOrderPhoto attachWorkOrderPhoto,
-  }) : _getWorkOrdersPage = getWorkOrdersPage,
+  }) : _workOrderRepository = workOrderRepository,
+       _workOrderPhotoRepository = workOrderPhotoRepository,
        _advanceWorkOrderStatus = advanceWorkOrderStatus,
-       _captureWorkOrderPhoto = captureWorkOrderPhoto,
-       _attachWorkOrderPhoto = attachWorkOrderPhoto,
        super(const WorkOrdersState()) {
     on<WorkOrdersStarted>(_onStarted);
-    on<WorkOrdersNextPageRequested>(_onNextPageRequested);
-    on<WorkOrdersRetryNextPageRequested>(_onRetryNextPageRequested);
     on<WorkOrdersFilterChanged>(_onFilterChanged);
     on<WorkOrderPhotoCaptureRequested>(_onPhotoCaptureRequested);
     on<WorkOrderStatusChangeRequested>(_onStatusChangeRequested);
     on<WorkOrdersFeedbackDismissed>(_onFeedbackDismissed);
   }
 
-  final GetWorkOrdersPage _getWorkOrdersPage;
+  final WorkOrderRepository _workOrderRepository;
+  final WorkOrderPhotoRepository _workOrderPhotoRepository;
   final AdvanceWorkOrderStatus _advanceWorkOrderStatus;
-  final CaptureWorkOrderPhoto _captureWorkOrderPhoto;
-  final AttachWorkOrderPhoto _attachWorkOrderPhoto;
 
   Future<void> _onStarted(
     WorkOrdersStarted event,
@@ -46,27 +40,20 @@ class WorkOrdersBloc extends Bloc<WorkOrdersEvent, WorkOrdersState> {
         workOrders: event.forceRefresh
             ? const <WorkOrderModel>[]
             : state.workOrders,
-        nextPage: 1,
-        hasReachedEnd: false,
         initialErrorMessage: null,
-        paginationErrorMessage: null,
         feedbackMessage: null,
-        isLoadingMore: false,
         updatingIds: const <String>[],
         capturingPhotoIds: const <String>[],
       ),
     );
 
     try {
-      final page = await _getWorkOrdersPage(page: 1);
+      final workOrders = await _workOrderRepository.fetchWorkOrders();
       emit(
         state.copyWith(
           status: WorkOrdersLoadStatus.success,
-          workOrders: page.items,
-          nextPage: 2,
-          hasReachedEnd: !page.hasMore,
+          workOrders: workOrders,
           initialErrorMessage: null,
-          paginationErrorMessage: null,
         ),
       );
     } catch (_) {
@@ -74,52 +61,7 @@ class WorkOrdersBloc extends Bloc<WorkOrdersEvent, WorkOrdersState> {
         state.copyWith(
           status: WorkOrdersLoadStatus.failure,
           workOrders: const <WorkOrderModel>[],
-          initialErrorMessage: 'Unable to load page 1. Please retry.',
-        ),
-      );
-    }
-  }
-
-  Future<void> _onNextPageRequested(
-    WorkOrdersNextPageRequested event,
-    Emitter<WorkOrdersState> emit,
-  ) async {
-    await _loadNextPage(emit);
-  }
-
-  Future<void> _onRetryNextPageRequested(
-    WorkOrdersRetryNextPageRequested event,
-    Emitter<WorkOrdersState> emit,
-  ) async {
-    await _loadNextPage(emit);
-  }
-
-  Future<void> _loadNextPage(Emitter<WorkOrdersState> emit) async {
-    if (state.status != WorkOrdersLoadStatus.success ||
-        state.hasReachedEnd ||
-        state.isLoadingMore) {
-      return;
-    }
-
-    emit(state.copyWith(isLoadingMore: true, paginationErrorMessage: null));
-
-    try {
-      final page = await _getWorkOrdersPage(page: state.nextPage);
-      emit(
-        state.copyWith(
-          isLoadingMore: false,
-          workOrders: [...state.workOrders, ...page.items],
-          nextPage: state.nextPage + 1,
-          hasReachedEnd: !page.hasMore,
-          paginationErrorMessage: null,
-        ),
-      );
-    } catch (_) {
-      emit(
-        state.copyWith(
-          isLoadingMore: false,
-          paginationErrorMessage:
-              'Page ${state.nextPage} failed. Loaded items are preserved.',
+          initialErrorMessage: 'Unable to load work orders. Please retry.',
         ),
       );
     }
@@ -147,7 +89,7 @@ class WorkOrdersBloc extends Bloc<WorkOrdersEvent, WorkOrdersState> {
     );
 
     try {
-      final photoPath = await _captureWorkOrderPhoto();
+      final photoPath = await _workOrderPhotoRepository.capturePhoto();
 
       if (photoPath == null) {
         emit(
@@ -160,7 +102,7 @@ class WorkOrdersBloc extends Bloc<WorkOrdersEvent, WorkOrdersState> {
         return;
       }
 
-      final updated = await _attachWorkOrderPhoto(
+      final updated = await _workOrderRepository.attachPhotoToWorkOrder(
         workOrderId: event.workOrderId,
         photoPath: photoPath,
       );

@@ -1,13 +1,9 @@
 import 'package:demo_task/core/theme/app_theme.dart';
 import 'package:demo_task/data/repositories/image_picker_work_order_photo_repository.dart';
 import 'package:demo_task/data/repositories/in_memory_work_order_repository.dart';
-import 'package:demo_task/data/services/device_camera_photo_service.dart';
 import 'package:demo_task/domain/repositories/work_order_photo_repository.dart';
 import 'package:demo_task/domain/repositories/work_order_repository.dart';
-import 'package:demo_task/domain/usecases/attach_work_order_photo.dart';
 import 'package:demo_task/domain/usecases/advance_work_order_status.dart';
-import 'package:demo_task/domain/usecases/capture_work_order_photo.dart';
-import 'package:demo_task/domain/usecases/get_work_orders_page.dart';
 import 'package:demo_task/presentation/bloc/work_orders_bloc.dart';
 import 'package:demo_task/presentation/bloc/work_orders_event.dart';
 import 'package:demo_task/presentation/screens/home/home_screen.dart';
@@ -33,8 +29,7 @@ class DemoTaskApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final repository = _repository ?? InMemoryWorkOrderRepository();
     final photoRepository =
-        _photoRepository ??
-        ImagePickerWorkOrderPhotoRepository(DeviceCameraPhotoService());
+        _photoRepository ?? ImagePickerWorkOrderPhotoRepository();
 
     return MultiRepositoryProvider(
       providers: [
@@ -45,10 +40,9 @@ class DemoTaskApp extends StatelessWidget {
       ],
       child: BlocProvider(
         create: (_) => WorkOrdersBloc(
-          getWorkOrdersPage: GetWorkOrdersPage(repository),
+          workOrderRepository: repository,
+          workOrderPhotoRepository: photoRepository,
           advanceWorkOrderStatus: AdvanceWorkOrderStatus(repository),
-          captureWorkOrderPhoto: CaptureWorkOrderPhoto(photoRepository),
-          attachWorkOrderPhoto: AttachWorkOrderPhoto(repository),
         )..add(const WorkOrdersStarted()),
         child: MaterialApp(
           debugShowCheckedModeBanner: false,

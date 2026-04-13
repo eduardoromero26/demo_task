@@ -8,9 +8,9 @@ void main() {
     test('throws when pending tries to move directly to completed', () async {
       final repository = InMemoryWorkOrderRepository(latency: Duration.zero);
       final useCase = AdvanceWorkOrderStatus(repository);
-      final openWorkOrder = (await repository.fetchWorkOrders(
-        page: 1,
-      )).items.firstWhere((item) => item.status == WorkOrderStatus.pending);
+      final openWorkOrder = (await repository.fetchWorkOrders()).firstWhere(
+        (item) => item.status == WorkOrderStatus.pending,
+      );
 
       expect(
         () => useCase(
@@ -20,5 +20,23 @@ void main() {
         throwsA(isA<StateError>()),
       );
     });
+
+    test(
+      'throws when completing an in-progress order without a photo',
+      () async {
+        final repository = InMemoryWorkOrderRepository(latency: Duration.zero);
+        final useCase = AdvanceWorkOrderStatus(repository);
+        final inProgressWorkOrder = (await repository.fetchWorkOrders()).first
+            .copyWith(status: WorkOrderStatus.inProgress);
+
+        expect(
+          () => useCase(
+            workOrder: inProgressWorkOrder,
+            newStatus: WorkOrderStatus.completed,
+          ),
+          throwsA(isA<StateError>()),
+        );
+      },
+    );
   });
 }

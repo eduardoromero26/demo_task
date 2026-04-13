@@ -9,12 +9,8 @@ class WorkOrdersState extends Equatable {
   const WorkOrdersState({
     this.status = WorkOrdersLoadStatus.initial,
     this.workOrders = const <WorkOrderModel>[],
-    this.nextPage = 1,
-    this.hasReachedEnd = false,
-    this.isLoadingMore = false,
     this.selectedFilter,
     this.initialErrorMessage,
-    this.paginationErrorMessage,
     this.feedbackMessage,
     this.updatingIds = const <String>[],
     this.capturingPhotoIds = const <String>[],
@@ -22,12 +18,8 @@ class WorkOrdersState extends Equatable {
 
   final WorkOrdersLoadStatus status;
   final List<WorkOrderModel> workOrders;
-  final int nextPage;
-  final bool hasReachedEnd;
-  final bool isLoadingMore;
   final WorkOrderStatus? selectedFilter;
   final String? initialErrorMessage;
-  final String? paginationErrorMessage;
   final String? feedbackMessage;
   final List<String> updatingIds;
   final List<String> capturingPhotoIds;
@@ -44,12 +36,8 @@ class WorkOrdersState extends Equatable {
   WorkOrdersState copyWith({
     WorkOrdersLoadStatus? status,
     List<WorkOrderModel>? workOrders,
-    int? nextPage,
-    bool? hasReachedEnd,
-    bool? isLoadingMore,
     Object? selectedFilter = _unset,
     Object? initialErrorMessage = _unset,
-    Object? paginationErrorMessage = _unset,
     Object? feedbackMessage = _unset,
     List<String>? updatingIds,
     List<String>? capturingPhotoIds,
@@ -57,18 +45,12 @@ class WorkOrdersState extends Equatable {
     return WorkOrdersState(
       status: status ?? this.status,
       workOrders: workOrders ?? this.workOrders,
-      nextPage: nextPage ?? this.nextPage,
-      hasReachedEnd: hasReachedEnd ?? this.hasReachedEnd,
-      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       selectedFilter: selectedFilter == _unset
           ? this.selectedFilter
           : selectedFilter as WorkOrderStatus?,
       initialErrorMessage: initialErrorMessage == _unset
           ? this.initialErrorMessage
           : initialErrorMessage as String?,
-      paginationErrorMessage: paginationErrorMessage == _unset
-          ? this.paginationErrorMessage
-          : paginationErrorMessage as String?,
       feedbackMessage: feedbackMessage == _unset
           ? this.feedbackMessage
           : feedbackMessage as String?,
@@ -81,12 +63,8 @@ class WorkOrdersState extends Equatable {
   List<Object?> get props => [
     status,
     workOrders,
-    nextPage,
-    hasReachedEnd,
-    isLoadingMore,
     selectedFilter,
     initialErrorMessage,
-    paginationErrorMessage,
     feedbackMessage,
     updatingIds,
     capturingPhotoIds,

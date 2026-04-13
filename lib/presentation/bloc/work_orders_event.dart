@@ -17,14 +17,6 @@ class WorkOrdersStarted extends WorkOrdersEvent {
   List<Object?> get props => [forceRefresh];
 }
 
-class WorkOrdersNextPageRequested extends WorkOrdersEvent {
-  const WorkOrdersNextPageRequested();
-}
-
-class WorkOrdersRetryNextPageRequested extends WorkOrdersEvent {
-  const WorkOrdersRetryNextPageRequested();
-}
-
 class WorkOrdersFilterChanged extends WorkOrdersEvent {
   const WorkOrdersFilterChanged(this.filter);
 

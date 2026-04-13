@@ -1,13 +1,19 @@
-import 'package:demo_task/data/services/device_camera_photo_service.dart';
 import 'package:demo_task/domain/repositories/work_order_photo_repository.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ImagePickerWorkOrderPhotoRepository implements WorkOrderPhotoRepository {
-  ImagePickerWorkOrderPhotoRepository(this._cameraPhotoService);
+  ImagePickerWorkOrderPhotoRepository({ImagePicker? imagePicker})
+    : _imagePicker = imagePicker ?? ImagePicker();
 
-  final DeviceCameraPhotoService _cameraPhotoService;
+  final ImagePicker _imagePicker;
 
   @override
-  Future<String?> capturePhoto() {
-    return _cameraPhotoService.capturePhotoPath();
+  Future<String?> capturePhoto() async {
+    final image = await _imagePicker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 80,
+    );
+
+    return image?.path;
   }
 }
