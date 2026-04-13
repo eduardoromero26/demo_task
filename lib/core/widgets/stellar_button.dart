@@ -3,6 +3,16 @@ import 'package:flutter/material.dart';
 
 enum StellarButtonVariant { primary, neutral, tonal }
 
+class _StellarButtonColors {
+  const _StellarButtonColors({
+    required this.background,
+    required this.foreground,
+  });
+
+  final Color background;
+  final Color foreground;
+}
+
 class StellarButton extends StatelessWidget {
   const StellarButton({
     super.key,
@@ -29,68 +39,73 @@ class StellarButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const buttonTextStyle = TextStyle(
-      fontSize: 16,
-      fontWeight: FontWeight.w700,
+    final colors = _resolveColors();
+    final style =
+        ElevatedButton.styleFrom(
+          backgroundColor: backgroundColor ?? colors.background,
+          foregroundColor: foregroundColor ?? colors.foreground,
+          disabledBackgroundColor: (backgroundColor ?? colors.background)
+              .withValues(alpha: 0.45),
+          disabledForegroundColor: (foregroundColor ?? colors.foreground)
+              .withValues(alpha: 0.75),
+          padding: padding ?? _resolvePadding(),
+          elevation:
+              elevation ?? (variant == StellarButtonVariant.primary ? 0 : 0),
+          shadowColor: AppTheme.primary.withValues(alpha: 0.2),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          iconSize: 18,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(borderRadius),
+          ),
+        ).copyWith(
+          overlayColor: WidgetStatePropertyAll(
+            (foregroundColor ?? colors.foreground).withValues(alpha: 0.08),
+          ),
+        );
+
+    if (icon != null) {
+      return ElevatedButton.icon(
+        onPressed: onPressed,
+        style: style,
+        icon: Icon(icon),
+        label: Text(label),
+      );
+    }
+
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: style,
+      child: Text(label),
     );
+  }
 
-    final buttonChild = icon == null
-        ? Text(label, style: buttonTextStyle)
-        : Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 18),
-              const SizedBox(width: 8),
-              Text(label, style: buttonTextStyle),
-            ],
-          );
-
+  EdgeInsetsGeometry _resolvePadding() {
     switch (variant) {
       case StellarButtonVariant.primary:
-        return FilledButton(
-          onPressed: onPressed,
-          style: FilledButton.styleFrom(
-            backgroundColor: backgroundColor ?? AppTheme.primary,
-            foregroundColor: foregroundColor ?? Colors.white,
-            padding: padding ?? const EdgeInsets.symmetric(vertical: 14),
-            elevation: elevation,
-            shadowColor: AppTheme.primary.withValues(alpha: 0.2),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(borderRadius),
-            ),
-          ),
-          child: buttonChild,
+        return const EdgeInsets.symmetric(vertical: 14, horizontal: 16);
+      case StellarButtonVariant.neutral:
+        return const EdgeInsets.symmetric(horizontal: 18, vertical: 14);
+      case StellarButtonVariant.tonal:
+        return const EdgeInsets.symmetric(horizontal: 16, vertical: 12);
+    }
+  }
+
+  _StellarButtonColors _resolveColors() {
+    switch (variant) {
+      case StellarButtonVariant.primary:
+        return const _StellarButtonColors(
+          background: AppTheme.primary,
+          foreground: Colors.white,
         );
       case StellarButtonVariant.neutral:
-        return OutlinedButton(
-          onPressed: onPressed,
-          style: OutlinedButton.styleFrom(
-            backgroundColor: backgroundColor ?? const Color(0xFFF0F2F8),
-            foregroundColor: foregroundColor ?? const Color(0xFF111827),
-            side: BorderSide.none,
-            padding:
-                padding ??
-                const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(borderRadius),
-            ),
-          ),
-          child: buttonChild,
+        return const _StellarButtonColors(
+          background: Color(0xFFF0F2F8),
+          foreground: Color(0xFF111827),
         );
       case StellarButtonVariant.tonal:
-        return FilledButton.tonal(
-          onPressed: onPressed,
-          style: FilledButton.styleFrom(
-            backgroundColor: backgroundColor ?? AppTheme.secondary,
-            foregroundColor: foregroundColor ?? Colors.white,
-            padding:
-                padding ??
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(borderRadius),
-            ),
-          ),
-          child: buttonChild,
+        return const _StellarButtonColors(
+          background: AppTheme.secondary,
+          foreground: Colors.white,
         );
     }
   }
